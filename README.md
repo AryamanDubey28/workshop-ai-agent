@@ -1,15 +1,7 @@
-# Workshop AI Agent 🎙️
+# Workshop AI Agent 
 
 An AI-powered audio transcription service built with OpenAI's Whisper API. This project includes a CLI tool, REST API server, and an interactive Streamlit web interface for recording and transcribing audio.
 
-## ✨ Features
-
-- 🎤 **Record audio** directly in your browser
-- 🤖 **AI-powered transcription** using OpenAI's latest models
-- 🔌 **RESTful API** for easy integration
-- 💻 **Command-line interface** for batch processing
-- 🎨 **Beautiful web UI** built with Streamlit
-- 🔒 **Secure** environment variable management
 
 ## 📋 Prerequisites
 
@@ -66,11 +58,10 @@ Or set it as an environment variable:
 export OPENAI_API_KEY="your_api_key_here"
 ```
 
-**⚠️ Important:** Never commit your `.env` file or API keys to version control!
 
 ## 💻 Usage
 
-### Option 1: Web Interface (Recommended)
+### Web Interface 
 
 The easiest way to use the transcription service is through the web interface.
 
@@ -93,30 +84,6 @@ The web interface will open automatically in your browser at `http://localhost:8
 2. Click "Send to Transcribe" to get your transcript
 3. View the results in the Transcript column
 
-### Option 2: Command-Line Interface
-
-Transcribe an audio file directly from the command line:
-
-```bash
-python cli.py path/to/audio.mp3
-```
-
-**Advanced CLI usage:**
-
-```bash
-# Specify a different model
-python cli.py audio.mp3 --model whisper-1
-
-# Change response format
-python cli.py audio.mp3 --response-format srt
-
-# Add a prompt to guide transcription
-python cli.py audio.mp3 --prompt "This is a medical interview"
-
-# Save output to a file
-python cli.py audio.mp3 --save-to transcript.txt
-```
-
 **Available options:**
 - `--model`: Model to use (default: `gpt-4o-transcribe`)
   - Options: `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, `whisper-1`
@@ -124,26 +91,6 @@ python cli.py audio.mp3 --save-to transcript.txt
   - Options: `json`, `text`, `srt`, `verbose_json`, `vtt`, `diarized_json`
 - `--prompt`: Optional prompt to guide transcription
 - `--save-to`: Save transcript to file instead of printing
-
-### Option 3: API Integration
-
-You can integrate the transcription API into your own applications.
-
-**Start the server:**
-```bash
-uvicorn endpoints:app --reload --host 0.0.0.0 --port 8000
-```
-
-**API Documentation:** Visit `http://localhost:8000/docs` for interactive API documentation
-
-**Example API call:**
-
-```bash
-curl -X POST "http://localhost:8000/transcribe" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@audio.mp3" \
-  -F "model=gpt-4o-transcribe"
-```
 
 **Python example:**
 ```python
@@ -199,26 +146,6 @@ You can also modify constants in `config.py`:
 - `MAX_UPLOAD_BYTES`: Maximum file upload size
 - `SUPPORTED_CONTENT_TYPES`: Allowed audio formats
 
-## 🛠️ Development
-
-### Running in Development Mode
-
-**API Server:**
-```bash
-uvicorn endpoints:app --reload --log-level debug
-```
-
-**Frontend:**
-```bash
-streamlit run frontend.py --server.runOnSave true
-```
-
-### Running Tests
-
-```bash
-# Add your test commands here
-pytest
-```
 
 ## 📝 API Reference
 
@@ -245,51 +172,3 @@ Transcribe an uploaded audio file.
 - `413`: File too large (>25 MB)
 - `415`: Unsupported content type
 - `502`: Transcription service error
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🙏 Acknowledgments
-
-- Built with [OpenAI's Whisper API](https://platform.openai.com/docs/guides/speech-to-text)
-- Frontend powered by [Streamlit](https://streamlit.io/)
-- API built with [FastAPI](https://fastapi.tiangolo.com/)
-
-## 🐛 Troubleshooting
-
-### "OPENAI_API_KEY environment variable is not set"
-- Make sure you've created a `.env` file with your API key
-- Or set the environment variable: `export OPENAI_API_KEY="your_key"`
-
-### "pydub is required to convert audio to MP3"
-- Install pydub: `pip install pydub`
-- Install FFmpeg (see Prerequisites section)
-
-### "Connection refused" when using web interface
-- Make sure the API server is running: `uvicorn endpoints:app --reload`
-- Check that it's running on `http://localhost:8000`
-
-### "File too large" error
-- Maximum file size is 25 MB
-- Compress your audio file or split it into smaller chunks
-- Consider using a lower bitrate for recording
-
-## 📞 Support
-
-If you encounter any issues or have questions, please [open an issue](https://github.com/AryamanDubey28/workshop-ai-agent/issues) on GitHub.
-
----
-
-Made with ❤️ by the Workshop AI Team
-

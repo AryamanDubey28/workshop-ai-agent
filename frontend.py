@@ -10,7 +10,7 @@ import streamlit as st
 
 try:
     from pydub import AudioSegment
-except ImportError:  # pragma: no cover - runtime dependency check
+except ImportError:  
     AudioSegment = None
 
 
