@@ -8,12 +8,12 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from openai import OpenAI
 
-# Load environment variables from .env file if it exists
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
-    pass  # dotenv not installed, assume env vars are set
+    pass  
 
 from config import DEFAULT_MODEL, MAX_UPLOAD_BYTES, OPENAI_API_KEY, SUPPORTED_CONTENT_TYPES
 from service import TranscriptionOptions, TranscriptionService, transcription_to_payload
@@ -78,7 +78,7 @@ async def transcribe_endpoint(
             file_handle=buffer,
             options=options,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     payload = transcription_to_payload(transcription)
