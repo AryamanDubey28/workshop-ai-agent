@@ -67,10 +67,8 @@ def fetch_insights(endpoint: str) -> Dict[str, Any]:
 
 def render_insight_card(title: str, items: list[str]) -> None:
     """Render a single insight card with a title and list of items."""
-    # Format title for display (replace underscores with spaces, capitalize)
     display_title = title.replace("_", " ").title()
     
-    # Create card HTML
     card_html = f"""
     <div style="
         background: white;
@@ -110,7 +108,6 @@ def render_insight_card(title: str, items: list[str]) -> None:
 def main() -> None:
     st.set_page_config(page_title="Workshop AI", layout="wide", page_icon="⚡")
     
-    # Custom CSS for better styling
     st.markdown(
         """
         <style>
@@ -166,7 +163,6 @@ def main() -> None:
     if "insights_error" not in st.session_state:
         st.session_state["insights_error"] = None
 
-    # Use default endpoint
     endpoint = DEFAULT_TRANSCRIBE_URL
 
     col1, col2, col3 = st.columns(3)
@@ -215,7 +211,7 @@ def main() -> None:
                             "Received a response but could not find transcription text. "
                             "Check the raw payload for details."
                         )
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:  
                     st.session_state["transcription_error"] = str(exc)
 
     with col2:
@@ -235,11 +231,10 @@ def main() -> None:
             key="transcript_input",
         )
         
-        # Update session state if text changed
         if transcript_text != st.session_state["transcript"]:
             st.session_state["transcript"] = transcript_text
         
-        # Add copy button if there's text
+       
         if st.session_state["transcript"]:
             if st.button("Copy Transcript", use_container_width=True):
                 st.toast("Transcript copied to clipboard!")
@@ -274,10 +269,10 @@ def main() -> None:
                         st.session_state["insights_error"] = (
                             "Received a response but could not find insights data."
                         )
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:  
                     st.session_state["insights_error"] = str(exc)
         
-        # Display insights
+        
         if st.session_state["insights_error"]:
             st.error(st.session_state["insights_error"])
         elif st.session_state["insights"]:
