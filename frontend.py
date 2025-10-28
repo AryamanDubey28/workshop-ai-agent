@@ -15,6 +15,7 @@ except ImportError:
 
 
 DEFAULT_TRANSCRIBE_URL = "http://localhost:8000/transcribe"
+DEFAULT_INSIGHTS_URL = "http://localhost:8000/insights"
 
 
 def convert_audio_to_mp3(audio_bytes: bytes, source_format: str = None) -> bytes:
@@ -55,6 +56,55 @@ def extract_text(payload: Dict[str, Any]) -> Optional[str]:
     if isinstance(text, str) and text.strip():
         return text.strip()
     return None
+
+
+def fetch_insights(endpoint: str) -> Dict[str, Any]:
+    """Fetch AI insights from the backend insights endpoint."""
+    response = requests.post(endpoint, timeout=60)
+    response.raise_for_status()
+    return response.json()
+
+
+def render_insight_card(title: str, items: list[str]) -> None:
+    """Render a single insight card with a title and list of items."""
+    # Format title for display (replace underscores with spaces, capitalize)
+    display_title = title.replace("_", " ").title()
+    
+    # Create card HTML
+    card_html = f"""
+    <div style="
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    ">
+        <h3 style="
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        ">{display_title}</h3>
+        <ul style="
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #333;
+            line-height: 1.8;
+        ">
+    """
+    
+    for item in items:
+        card_html += f'<li style="margin-bottom: 0.5rem;">{item}</li>'
+    
+    card_html += """
+        </ul>
+    </div>
+    """
+    
+    st.markdown(card_html, unsafe_allow_html=True)
 
 
 def main() -> None:
@@ -111,6 +161,10 @@ def main() -> None:
         st.session_state["transcription_error"] = None
     if "raw_payload" not in st.session_state:
         st.session_state["raw_payload"] = None
+    if "insights" not in st.session_state:
+        st.session_state["insights"] = None
+    if "insights_error" not in st.session_state:
+        st.session_state["insights_error"] = None
 
     # Use default endpoint
     endpoint = DEFAULT_TRANSCRIBE_URL
@@ -206,12 +260,41 @@ def main() -> None:
     with col3:
         st.subheader("AI Insights")
         st.markdown("Get AI-powered analysis of your transcript")
-        st.button(
+        
+        insights_clicked = st.button(
             "Generate Insights",
-            disabled=True,
-            help="AI insights for your transcript.",
+            disabled=st.session_state["transcript"] is None,
+            help="Generate AI insights for your transcript.",
+            type="primary",
             use_container_width=True,
         )
+        
+        if insights_clicked:
+            st.session_state["insights_error"] = None
+            st.session_state["insights"] = None
+            
+            with st.spinner("Generating AI insights..."):
+                try:
+                    insights_data = fetch_insights(DEFAULT_INSIGHTS_URL)
+                    response_data = insights_data.get("response", {})
+                    if response_data:
+                        st.session_state["insights"] = response_data
+                    else:
+                        st.session_state["insights_error"] = (
+                            "Received a response but could not find insights data."
+                        )
+                except Exception as exc:  # noqa: BLE001
+                    st.session_state["insights_error"] = str(exc)
+        
+        # Display insights
+        if st.session_state["insights_error"]:
+            st.error(st.session_state["insights_error"])
+        elif st.session_state["insights"]:
+            for key, value in st.session_state["insights"].items():
+                if isinstance(value, list):
+                    render_insight_card(key, value)
+        else:
+            st.info("Transcribe audio first, then generate insights to see AI-powered analysis here.")
 
 
 if __name__ == "__main__":

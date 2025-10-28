@@ -84,3 +84,39 @@ async def transcribe_endpoint(
     payload = transcription_to_payload(transcription)
     return JSONResponse(content=payload)
 
+
+@app.post("/insights")
+async def insights_endpoint() -> JSONResponse:
+    """
+    Generate AI insights from a transcript (dummy implementation).
+
+    Returns:
+        JSONResponse containing insights, themes, questions, gaps, and risks
+    """
+    # Dummy response for now
+    dummy_insights = {
+        "response": {
+            "insights": [
+                "Sender requests a short (15-min) meeting to locate/receive docs or an intro to Workshop AI and quickly assess what can be delivered before year-end — indicates urgency and timeboxed planning.",
+                "Lack of shared documentation is an immediate blocker for scoping deliverables; the meeting will likely focus on prioritisation and quick feasibility checks."
+            ],
+            "themes": [
+                "Time-constrained year-end delivery planning",
+                "Need for foundational documentation/intro to enable scoping"
+            ],
+            "suggested_questions": [
+                "Which specific projects or deliverables should we assess for the remainder of the year (priorities)?",
+                "Can you share any existing docs or a one-page intro to Workshop AI before the meeting, and confirm the firm year-end deadline and available effort?"
+            ],
+            "gaps_and_ambiguities": [
+                "No documentation/shared materials provided or referenced.",
+                "Unclear scope/prioritisation of 'what we can deliver' and exact deadline or resource availability."
+            ],
+            "risks_and_dependencies": [
+                "Insufficient time and detail to accurately scope work before year-end if docs aren't provided in advance.",
+                "Meeting effectiveness depends on stakeholder availability and presence of at least minimal documentation or clear priorities."
+            ]
+        }
+    }
+    return JSONResponse(content=dummy_insights)
+
