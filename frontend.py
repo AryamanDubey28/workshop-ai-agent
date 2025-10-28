@@ -156,7 +156,7 @@ def main() -> None:
     st.divider()
 
     if "transcript" not in st.session_state:
-        st.session_state["transcript"] = None
+        st.session_state["transcript"] = ""
     if "transcription_error" not in st.session_state:
         st.session_state["transcription_error"] = None
     if "raw_payload" not in st.session_state:
@@ -184,7 +184,6 @@ def main() -> None:
 
     if transcribe_clicked:
         st.session_state["transcription_error"] = None
-        st.session_state["transcript"] = None
         st.session_state["raw_payload"] = None
 
         if not endpoint:
@@ -206,7 +205,11 @@ def main() -> None:
                     st.session_state["raw_payload"] = payload
                     transcript_text = extract_text(payload)
                     if transcript_text:
-                        st.session_state["transcript"] = transcript_text
+                        # Append to existing transcript if there's already text
+                        if st.session_state["transcript"]:
+                            st.session_state["transcript"] += "\n\n" + transcript_text
+                        else:
+                            st.session_state["transcript"] = transcript_text
                     else:
                         st.session_state["transcription_error"] = (
                             "Received a response but could not find transcription text. "
@@ -217,41 +220,29 @@ def main() -> None:
 
     with col2:
         st.subheader("Transcript")
+        st.markdown("Type directly or transcribe audio to populate this field")
         
         if st.session_state["transcription_error"]:
             st.error(st.session_state["transcription_error"])
-        elif st.session_state["transcript"]:
-            # Display transcript in a nice styled container
-            st.markdown(
-                f"""
-                <div style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 2rem;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    margin: 1rem 0;
-                ">
-                    <div style="
-                        background: white;
-                        padding: 1.5rem;
-                        border-radius: 8px;
-                        color: #333;
-                        font-size: 1.1rem;
-                        line-height: 1.8;
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    ">
-                        {st.session_state["transcript"]}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            
-            # Add copy button
+        
+        # Editable text area for transcript - always enabled
+        transcript_text = st.text_area(
+            "Edit or add to your transcript",
+            value=st.session_state["transcript"],
+            height=400,
+            placeholder="Type your text here or record audio to transcribe...",
+            label_visibility="collapsed",
+            key="transcript_input",
+        )
+        
+        # Update session state if text changed
+        if transcript_text != st.session_state["transcript"]:
+            st.session_state["transcript"] = transcript_text
+        
+        # Add copy button if there's text
+        if st.session_state["transcript"]:
             if st.button("Copy Transcript", use_container_width=True):
                 st.toast("Transcript copied to clipboard!")
-        else:
-            st.info("Record audio and send it to see the transcription here.")
 
         if st.session_state["raw_payload"]:
             with st.expander("View Raw Response"):
@@ -263,7 +254,7 @@ def main() -> None:
         
         insights_clicked = st.button(
             "Generate Insights",
-            disabled=st.session_state["transcript"] is None,
+            disabled=not st.session_state["transcript"] or not st.session_state["transcript"].strip(),
             help="Generate AI insights for your transcript.",
             type="primary",
             use_container_width=True,
